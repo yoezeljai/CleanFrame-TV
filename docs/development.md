@@ -67,7 +67,7 @@ For developer access, connect the TV and Mac to the same network, enable Develop
 
 ## Native Home and recovery
 
-Native Home/startup was configured separately from the app installer. Physical Home from Netflix is confirmed. The one-shot helper runs as the SDK user; there is no Mac watcher or resident TV helper. See scripts/native-home/README.md and docs/tv-status.md for the tested firmware and pending visual checks.
+Native Home/startup was configured separately from the app installer. Physical Home from Netflix is confirmed. The one-shot helper runs as the SDK user. See scripts/native-home/README.md and docs/tv-status.md for the tested firmware and pending visual checks.
 
 Query with `python3 scripts/native-home/run.py query`. Restore the saved pre-integration Home/startup values with `python3 scripts/native-home/run.py restore`. The private baseline is `.local/native-home/original.json`; preserve it and do not replace it with the applied state. The legacy `.local/native-home/run.py` command is also retained. Restore before uninstalling CleanFrame or changing its stable app identity.
 
