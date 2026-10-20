@@ -18,16 +18,16 @@ A separate clean snapshot contains 193 files, about 17 MB, without private setup
 
 Gitleaks found no credential leaks in the two published pre-release main commits, the cleaned source directory or the clean release history. Thirteen local proprietary font binaries were compared against the clean release Git objects; none matched. All local Markdown links resolved. The 107 source images contained no private location or descriptive metadata; the retained EXIF fields were dimensions, colour space and resolution. Automated checks are bounded: they cannot guarantee the absence of every possible secret or establish third-party rights beyond the documented source review.
 
-The GitHub check workflow is prepared for public fonts and browser validation. Its first hosted run still needs verification after the source is pushed.
+The GitHub check workflow uses public fonts and browser validation. Check its result for the revision being published; local success and hosted success are separate results.
 
 ## Publication boundary
 
-The existing private Git history contains the removed studies. Deleting current files does not remove those earlier versions. A separate clean Git history is prepared locally for the public copy, and the original history is backed up privately.
+The existing private Git history contains the removed studies. Deleting current files does not remove those earlier versions. A separate clean Git history was prepared for the public copy, and the original history is backed up privately.
 
-Recommended publication route: keep the original GitHub repository private, rename it `CleanFrame-private-backup`, and create a fresh `CleanFrame` repository from the reviewed clean history. Validate the new remote source and hosted checks while private, then change only the new copy to public after owner approval. Update local Git routing so the old history cannot be pushed into the public copy.
+The owner approved this publication route on 20 October 2026: keep the original GitHub repository private, rename it `CleanFrame-private-backup`, and create a fresh `CleanFrame` repository from the reviewed clean history. Validate the new remote source and hosted checks while private, then change only the new copy to public. Update local Git routing so the old history cannot be pushed into the public copy.
 
-This route avoids relying on a force-push to erase earlier hosted objects. [GitHub documents](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository) that rewritten commits can remain accessible through cached views or references. The recommendation to retain the old repository privately follows from that limitation. Renaming the old repository, creating the new copy and publishing it all remain pending explicit approval.
+This route avoids relying on a force-push to erase earlier hosted objects. [GitHub documents](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository) that rewritten commits can remain accessible through cached views or references. The recommendation to retain the old repository privately follows from that limitation. The approval covers renaming the private repository, creating the clean copy and publishing it. Future device work, release uploads and changes to visibility need their own instructions.
 
-At the GitHub inventory check, the repository was private, with one main branch, no tags, no releases, no Actions runs and no Actions artifacts. Recheck that inventory before changing visibility. Publication remains pending approval. Verify the remote source and unauthenticated public view after any approved visibility change.
+At the GitHub inventory check, the repository was private, with one main branch, no tags, no releases, no Actions runs and no Actions artifacts. Recheck that inventory before changing visibility. Verify the remote source and unauthenticated public view after the approved visibility change. The private backup must remain private.
 
 Keep public downloads to the unsigned public-font export with its notices. Personal signed packages can contain proprietary fonts. Reference-device installation results are recorded in [TV status](tv-status.md); the public-source review did not contact or change the TV.
