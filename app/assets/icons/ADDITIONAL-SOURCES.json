@@ -16,5 +16,23 @@
     "source": "https://github.com/simple-icons/simple-icons/blob/develop/icons/tubi.svg",
     "licence": "CC0-1.0",
     "note": "Shape unchanged; white fill for launcher."
+  },
+  {
+    "icon": "crunchyroll",
+    "source": "https://cdn.jsdelivr.net/npm/simple-icons@15.17.0/icons/crunchyroll.svg",
+    "licence": "CC0-1.0",
+    "note": "Shape unchanged; white fill for launcher."
+  },
+  {
+    "icon": "amazonmusic",
+    "source": "https://cdn.jsdelivr.net/npm/simple-icons@14.15.0/icons/amazonmusic.svg",
+    "licence": "CC0-1.0",
+    "note": "Shape unchanged; white fill for launcher. Removed from later Simple Icons releases."
+  },
+  {
+    "icon": "hotstar",
+    "source": "https://commons.wikimedia.org/wiki/File:JioHotstar_logo.jpg",
+    "licence": "Public domain (Wikimedia Commons; logo below threshold of originality)",
+    "note": "Star symbol only, traced to a white silhouette from the 434x113 JPEG and embedded as a 256 px PNG; wordmark omitted because the tile shows the name."
   }
 ]

@@ -14,16 +14,14 @@
   var FULL = 'Home holds nine apps. Remove one first.', LAST = 'Home needs one app';
 
   var PRIMARY_APPS = [
-    { id: 'stremio', name: 'Stremio', mark: true, appId: 'IkWsFHtOY9.Stremio' },
     { id: 'netflix', name: 'Netflix', mark: true, appId: 'org.tizen.netflix-app' },
-    { id: 'disneyplus', name: 'Disney+', mark: true, appId: 'MCmYXNxgcu.DisneyPlus' },
+    { id: 'primevideo', name: 'Prime Video', mark: true, appId: 'evKhCgZelL.AmazonIgnitionLauncher2' },
+    { id: 'hotstar', name: 'JioHotstar', mark: true, appId: 'fiZNCxMH9Y.Hotstar' },
+    { id: 'appletv', name: 'Apple TV', mark: true, appId: 'Y6A54cEa22.AppleTV' },
     { id: 'youtube', name: 'YouTube', mark: true, appId: '9Ur5IzDKqV.TizenYouTube' },
-    { id: 'appletv', name: 'Apple TV', mark: true, appId: 'com.samsung.tv.aria-video' },
-    { id: 'primevideo', name: 'Prime Video', mark: true, appId: 'org.tizen.primevideo' },
-    { id: 'abciview', name: 'ABC iview', mark: true, appId: 'mWK87Xghap.ABCiview' },
-    { id: 'sbs', name: 'SBS On Demand', mark: true, appId: 'OyE7OuxlUi.SBSOnDemand' },
-    { id: 'applemusic', name: 'Apple Music', mark: true, appId: 'org.tizen.apple.apple-music' }
-  ];
+    { id: 'crunchyroll', name: 'Crunchyroll', mark: true, appId: 'OGLLvqej7u.CrunchyrollWebApp' },
+    { id: 'spotify', name: 'Spotify', mark: true, appId: 'rJeHak5zRg.Spotify' }
+  ].concat(window.CleanFrameExtraApps || []);  // Device adapters may add platform-only apps (Fire TV: Amazon Music).
   var PRIMARY = PRIMARY_APPS.map(function (a) { return a.id; }), APPS = PRIMARY_APPS.slice(), ALPHA = [];
   var WALLS = window.CleanFrameWallpapers || [{ id: 'misty', name: 'Misty coast', tone: 'light', ut: { tr: 'mist', br: 'mist' }, frostVeil: .20 }];
   var ADAPTIVE_INK = window.CleanFrameAdaptiveInk || {};
@@ -49,8 +47,10 @@
   var LOOK_NAMES = { bg: 'Background', layout: 'Layout', apps: 'Apps', font: 'Font', controls: 'Home controls', focus: 'Focus', material: 'Material' };
   var VALUE_NAMES = { dark: 'Dark', light: 'Light', photo: 'Photo', list: 'List', dock: 'Dock', type: 'Type', glass: 'Glass', soft: 'Soft', frost: 'Frost', tint: 'Clear tint', icons: 'Icons', both: 'Icons and text', text: 'Text' };
   var UTIL = { art: ['Art Mode', 'art'], apps: ['All apps', 'apps'], arrange: ['Arrange', 'arrange'], settings: ['Settings', 'settings'] };
+  // Device adapters name their platform (device.js: Samsung, android/device-android.js: Fire TV).
+  var PLATFORM = window.CleanFramePlatform || 'Samsung';
   var MSG = {
-    leave: { title: 'Leave Home?', line: 'Open Samsung Home?', note: '', actions: [['stay', 'Stay'], ['samsung', 'Samsung Home']] }
+    leave: { title: 'Leave Home?', line: 'Open ' + PLATFORM + ' Home?', note: '', actions: [['stay', 'Stay'], ['samsung', PLATFORM + ' Home']] }
   };
   var SVG = {
     art: '<rect x="3.5" y="4.5" width="17" height="15" rx="2"/><circle cx="9" cy="9.8" r="1.5"/><path d="m4.5 17.5 4.5-4.5 3 3 2.5-2.5 5 5"/>',
@@ -363,6 +363,12 @@
   }
   function initialise() {
     var saved = load(), initial; S.c = clean(saved); initial = next(S.c.home.slice(), S.c.recent.slice());
+    // Platform extras join an existing Home once; removing one later sticks.
+    (window.CleanFrameExtraApps || []).forEach(function (a) {
+      var flag = 'cleanframe.extra.' + a.id;
+      try { if (localStorage.getItem(flag)) return; localStorage.setItem(flag, '1'); } catch (e) { return; }
+      if (initial.home.indexOf(a.id) < 0 && initial.home.length < 9) initial.home.push(a.id);
+    });
     S.stack = [{ id: 'home', f: { zone: 'apps', u: 0 } }];
     S.sel = S.c.lastApp; S.selIdx = S.c.home.indexOf(S.sel);
     if (saved && initial.mode === 'open') initial.wall = WALLS[(wallIndex(initial.wall) + 1) % WALLS.length].id;
@@ -491,15 +497,14 @@
   }
 
   /* ---------- Navigation targets ---------- */
-  function utils() { return ['art', 'apps', 'settings']; }
+  function utils() { return ['apps', 'settings']; }
   /* prev/next run along the apps; out goes to the controls, inn comes back (or to a per-app action). */
   function axes() {
     var v = S.c.layout === 'list';
     return { prev: v ? 'up' : 'left', next: v ? 'down' : 'right', out: v ? 'right' : 'up', inn: v ? 'left' : 'down' };
   }
   function utilAction(u) {
-    if (u === 'art') perform('Art Mode', FrameDevice.art);
-    else if (u === 'apps') openApps();
+    if (u === 'apps') openApps();
     else openSettings();
   }
   function addAppsRoute() { openEditor('home'); }
@@ -821,7 +826,7 @@
       { id: 'typography', label: 'Typography', value: FONTS[S.c.font].name },
       { id: 'focus', label: 'Focus', value: VALUE_NAMES[S.c.focus] + (materialApplies() ? ', ' + VALUE_NAMES[S.c.material] : '') },
       { id: 'editor', label: 'Apps on Home', value: n + (n === 1 ? ' app' : ' apps') },
-      { id: 'samsung', label: 'Samsung', value: 'Home and TV settings' }];
+      { id: 'samsung', label: PLATFORM, value: 'Home and TV settings' }];
   }
   function settingsIds() { return settingsRows().map(function (r) { return r.id; }); }
   V.settings = {
@@ -841,7 +846,7 @@
     if (id === 'editor') openEditor('settings');
     else openAppearance(id);
   }
-  var DETAIL_NAMES = { background: 'Background', layout: 'Layout', typography: 'Typography', focus: 'Focus', rotation: 'Rotation', samsung: 'Samsung' };
+  var DETAIL_NAMES = { background: 'Background', layout: 'Layout', typography: 'Typography', focus: 'Focus', rotation: 'Rotation', samsung: PLATFORM };
   function choice(axis, value, disabled) {
     return { action: axis === 'mode' ? 'rotation.' + value : 'choice.' + axis + '.' + value, axis: axis, value: value, disabled: !!disabled,
       label: axis === 'font' ? FONTS[value].name : axis === 'mode' ? MODES.filter(function (m) { return m.id === value; })[0].name : value === 'both' ? 'Both' : VALUE_NAMES[value] };
@@ -868,7 +873,7 @@
     if (t.group === 'rotation') return [{ id: 'mode', title: '', items: options('mode', MODES.map(function (m) { return m.id; }), flat),
       reason: flat ? 'Choose Photo in Background to use rotation.' : 'Timed changes pause while Settings or another panel is open.' }];
     return [{ id: 'samsung', title: '', items: [
-      { action: 'samsung.home', label: 'Samsung Home', description: 'Open Samsung’s Home screen' },
+      { action: 'samsung.home', label: PLATFORM + ' Home', description: 'Open the ' + PLATFORM + ' Home screen' },
       { action: 'samsung.settings', label: 'TV settings', description: 'Picture, sound and network settings' }
     ] }];
   }
@@ -914,7 +919,7 @@
     else if (item.axis) { patch[item.axis] = item.value; setLook(patch, { row: item.axis }); }
     else if (item.action === 'background.wallpaper') openWallpaper();
     else if (item.action === 'background.rotation') openAppearance('rotation');
-    else if (item.action === 'samsung.home') perform('Samsung Home', FrameDevice.home);
+    else if (item.action === 'samsung.home') perform(PLATFORM + ' Home', FrameDevice.home);
     else if (item.action === 'samsung.settings') perform('TV settings', FrameDevice.settings);
   }
   V.appearance = {
@@ -957,7 +962,7 @@
       if (k === 'left') t.f.b = Math.max(0, t.f.b - 1);
       else if (k === 'right') t.f.b = Math.min(A.length - 1, t.f.b + 1);
       else if (k === 'back') pop();
-      else if (k === 'ok') { a = A[t.f.b][0]; pop(); if (a === 'samsung') perform('Samsung Home', FrameDevice.home); }
+      else if (k === 'ok') { a = A[t.f.b][0]; pop(); if (a === 'samsung') perform(PLATFORM + ' Home', FrameDevice.home); }
     },
     point: function (t, z, i) { if (z === 'act') { t.f.b = i; this.key(t, 'ok'); } }
   };
@@ -1055,17 +1060,80 @@
     renderAppFocusName(hs);
   }
 
+  // Owner name and weather location live in assets/personal.js, which stays out of Git (see personal.example.js).
+  var PERSONAL = window.CleanFramePersonal || {};
+  function greetingText() {
+    var h = new Date().getHours();
+    return (h >= 5 && h < 12 ? 'Good morning' : h >= 12 && h < 17 ? 'Good afternoon' : h >= 17 && h < 22 ? 'Good evening' : 'Good night') + (PERSONAL.name ? ', ' + PERSONAL.name : '') + '.';
+  }
   function clockText() {
     var d = new Date(), h = d.getHours() % 12 || 12, m = d.getMinutes();
-    return h + ':' + (m < 10 ? '0' : '') + m;
+    return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m;
   }
   function clockHtml() {
-    var text = clockText(), metrics = fontMetrics[homeFont()];
-    if (!metrics || !metrics.digitCell) return text;
-    return text.replace(/[0-9]/g, function (digit) { return '<span class="clock-digit">' + digit + '</span>'; });
+    var text = clockText(), metrics = fontMetrics[homeFont()], ampm = '<span class="clock-ampm">' + (new Date().getHours() < 12 ? 'AM' : 'PM') + '</span>';
+    if (!metrics || !metrics.digitCell) return text + ampm;
+    return text.replace(/[0-9]/g, function (digit) { return '<span class="clock-digit">' + digit + '</span>'; }) + ampm;
   }
+
+  /* Live weather from Open-Meteo (free, no key) for PERSONAL.weather; none when it is unset.
+     Plain HTTP first because a 2017 TV may not trust current HTTPS roots. */
+  var WEATHER_PLACE = PERSONAL.weather && isFinite(PERSONAL.weather.lat) && isFinite(PERSONAL.weather.lon) ? PERSONAL.weather : null;
+  var WEATHER_MS = 30 * 60000, weather = null, weatherTimer = null;
+  var WEATHER_ICONS = {
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2m0 15v2M2.5 12h2m15 0h2M5.3 5.3l1.4 1.4m10.6 10.6 1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/>',
+    moon: '<path d="M19.5 14.5A7.5 7.5 0 0 1 9.5 4.5a7.5 7.5 0 1 0 10 10Z"/>',
+    partly: '<path d="M8 5.5V4M3.5 10H2m2.3-4.7-1-1m8.4 1 1-1"/><path d="M5.6 11.6a3 3 0 1 1 5.2-3"/><path d="M9 20h8.5a3.5 3.5 0 0 0 .3-7A5 5 0 0 0 8.4 14 3 3 0 0 0 9 20Z"/>',
+    cloud: '<path d="M7 19h10.5a4 4 0 0 0 .4-8A6 6 0 0 0 6.4 12.2 3.5 3.5 0 0 0 7 19Z"/>',
+    fog: '<path d="M7 14h10.5a4 4 0 0 0 .4-8A6 6 0 0 0 6.4 7.2 3.5 3.5 0 0 0 7 14Z"/><path d="M5 17.5h14M7 20.5h10"/>',
+    rain: '<path d="M7 15h10.5a4 4 0 0 0 .4-8A6 6 0 0 0 6.4 8.2 3.5 3.5 0 0 0 7 15Z"/><path d="m8.5 18-1 2.5m5-2.5-1 2.5m5-2.5-1 2.5"/>',
+    storm: '<path d="M7 14h10.5a4 4 0 0 0 .4-8A6 6 0 0 0 6.4 7.2 3.5 3.5 0 0 0 7 14Z"/><path d="m12.5 15.5-2 3.5h3l-2 3.5"/>'
+  };
+  // WMO weather codes → [label, icon]
+  function weatherKind(code, day) {
+    if (code === 0) return ['Clear', day ? 'sun' : 'moon'];
+    if (code === 1) return ['Mostly clear', day ? 'sun' : 'moon'];
+    if (code === 2) return ['Partly cloudy', day ? 'partly' : 'cloud'];
+    if (code === 3) return ['Cloudy', 'cloud'];
+    if (code === 45 || code === 48) return ['Fog', 'fog'];
+    if (code >= 51 && code <= 57) return ['Drizzle', 'rain'];
+    if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) return [code === 61 || code === 80 ? 'Light rain' : code === 65 || code === 82 ? 'Heavy rain' : 'Rain', 'rain'];
+    if (code >= 95) return ['Thunderstorm', 'storm'];
+    return ['Cloudy', 'cloud'];
+  }
+  function weatherIcon(name, size) {
+    return '<svg class="ico wx-ico" viewBox="0 0 24 24" width="' + size + '" height="' + size + '">' + WEATHER_ICONS[name] + '</svg>';
+  }
+  function weatherCaptionHtml() {
+    var w = weather;
+    if (!w || Date.now() - w.at > 3 * 3600000) return '';
+    return '<span class="wx wx-b">' + weatherIcon(w.icon, 44) + '<span class="wx-temp">' + w.temp + '°</span><span class="wx-meta"><span>' + esc(w.label) + '</span><span>H ' + w.hi + '°  L ' + w.lo + '°</span></span></span>';
+  }
+  function fetchWeather(urls) {
+    var url = urls[0] + '/v1/forecast?latitude=' + WEATHER_PLACE.lat + '&longitude=' + WEATHER_PLACE.lon +
+      '&current=temperature_2m,weather_code,is_day&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url);
+    xhr.timeout = 15000;
+    xhr.onload = function () {
+      try {
+        var d = JSON.parse(xhr.responseText), kind = weatherKind(d.current.weather_code, d.current.is_day === 1);
+        weather = { temp: Math.round(d.current.temperature_2m), hi: Math.round(d.daily.temperature_2m_max[0]), lo: Math.round(d.daily.temperature_2m_min[0]), label: kind[0], icon: kind[1], at: Date.now() };
+        if (top().id === 'home' || isSettingsDetail(top())) renderCaption(top(), homeState(top()));
+      } catch (e) { xhr.onerror(); }
+    };
+    xhr.onerror = xhr.ontimeout = function () { if (urls.length > 1) fetchWeather(urls.slice(1)); };
+    xhr.send();
+  }
+  function syncWeather() {
+    clearTimeout(weatherTimer);
+    if (document.hidden || !WEATHER_PLACE) return;
+    if (!weather || Date.now() - weather.at >= WEATHER_MS - 1000) fetchWeather(['http://api.open-meteo.com', 'https://api.open-meteo.com']);
+    weatherTimer = setTimeout(syncWeather, WEATHER_MS);
+  }
+
   function renderCaption(t, hs) {
-    var html = '<span class="clock">' + clockHtml() + '</span>';
+    var html = '<span class="greeting">' + esc(greetingText()) + '</span><span class="clock">' + clockHtml() + '</span>' + weatherCaptionHtml();
     if (S.c.apps !== 'icons' && hs.items[hs.i] && (S.c.layout === 'list' ? photoLabel(hs.items[hs.i].id, false).size < 88 || photoLabel(hs.items[hs.i].id, false).ellipsis : hs.zone === 'apps' && reducedDockLabel(hs.items[hs.i].id))) html += '<span class="cap-line full-name">' + esc(app(hs.items[hs.i].id).name) + '</span>';
     setHTML(caption, html);
   }
@@ -1840,7 +1908,7 @@
   document.addEventListener('visibilitychange', function () {
     heldKeys = {};
     if (document.hidden) { pauseRotation(); clearTimeout(clockTimer); }
-    else { release(); after(); updateClock(); focusStage(); }
+    else { release(); after(); updateClock(); focusStage(); syncWeather(); }
   });
   window.addEventListener('resize', fit);
 
@@ -1878,5 +1946,5 @@
   cueL.innerHTML = icon('left'); cueR.innerHTML = icon('right');
   initialise();
   setLook({}, { transient: true, startup: true });
-  norm(); render(); fit(); focusStage(); updateClock(); syncRotation();
+  norm(); render(); fit(); focusStage(); updateClock(); syncRotation(); syncWeather();
 })();

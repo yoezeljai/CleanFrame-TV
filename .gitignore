@@ -27,3 +27,8 @@ PP*.woff2
 /explorations/
 /docs/research/
 /docs/articles/
+
+# Owner name and weather location (see app/assets/personal.example.js).
+/app/assets/personal.js
+# Local Claude Code preview settings.
+/.claude/

@@ -2,20 +2,20 @@
 (function () {
   'use strict';
   var IDS = {
-    stremio: 'IkWsFHtOY9.Stremio', netflix: 'org.tizen.netflix-app',
-    disneyplus: 'MCmYXNxgcu.DisneyPlus', youtube: '9Ur5IzDKqV.TizenYouTube',
-    appletv: 'com.samsung.tv.aria-video', primevideo: 'org.tizen.primevideo',
-    abciview: 'mWK87Xghap.ABCiview', sbs: 'OyE7OuxlUi.SBSOnDemand',
-    applemusic: 'org.tizen.apple.apple-music'
+    netflix: 'org.tizen.netflix-app', primevideo: 'evKhCgZelL.AmazonIgnitionLauncher2',
+    hotstar: 'fiZNCxMH9Y.Hotstar', appletv: 'Y6A54cEa22.AppleTV',
+    youtube: '9Ur5IzDKqV.TizenYouTube', crunchyroll: 'OGLLvqej7u.CrunchyrollWebApp',
+    spotify: 'rJeHak5zRg.Spotify'
   };
-  var STREAMING = ['as6cYRgkPy.Binge', '73iTZRTc34.Stan', '5b8c3eb16b.BeamCTVDev',
-    'KaLitts8bq.tenplaySamsungTizen', 'eYuOiOLYQX.KayoSports', 'Ne2ZsPWdKl.9NOW',
-    '3KA0pm7a7V.TubiTV', 'rJeHak5zRg.Spotify', 'icp4AvUPiA.7plus'];
+  var STREAMING = ['EUKHUxrGQA.SonyLIV', 'SfrqKpeYMs.Gaana', 'EYrcnRgPyP.SunNXTSmartTV',
+    'qEnplNwwHh.BasicProjEros', 'JOBnjdqujB.BIGFLIX', 'H16FaQOxRQ.iQIYI', 'gz3DMB1OMy.DCHTVlive'];
   var CONSUMER_SYSTEM = ['org.tizen.browser', 'com.microsoft.copilot'];
   var EXTRA_BRANDS = {'rJeHak5zRg.Spotify': 'spotify', '5b8c3eb16b.BeamCTVDev': 'hbomax', '3KA0pm7a7V.TubiTV': 'tubi'};
-  var INTERNAL = ['adplatform.ADPlayer', 'WykOS4t4F0.cmsWebApp', '25emanual3.emanual',
+  var INTERNAL = ['adplatform.ADPlayer', 'jLU2jKvbyN.PrivacyChoices', 'rJeHak5zRg.SpotifyService', 'WykOS4t4F0.cmsWebApp', '25emanual3.emanual',
     'ZODRT12q2l.WebAccountExtension', 'ByJlgt0XeD.CastSettingsApp', 'tv6pbVMQFF.PrivacyChoices'];
-  var SELF = 'nClrkHome1.FrameHome';
+  // Older TVs launch some apps only by their Smart Hub number.
+  var FALLBACK = {'9Ur5IzDKqV.TizenYouTube': ['111299001912']};
+  var SELF = '44m9wD4iG5.CleanFrame';
   function api() { return window.tizen && window.tizen.application; }
   function unavailable(done) {
     done({ message: 'Open CleanFrame on the TV to use this control.', detail: 'The web preview cannot control the TV.' });
@@ -30,9 +30,13 @@
   }
   function launchApp(id, done) {
     if (!api()) { unavailable(done); return; }
-    var finish = bounded(done);
-    try { api().launch(id, function () { finish(null); }, function (err) { finish(failure(err)); }); }
-    catch (err) { finish(failure(err)); }
+    var finish = bounded(done), ids = [id].concat(FALLBACK[id] || []);
+    function attempt(i) {
+      var fail = function (err) { if (i + 1 < ids.length) attempt(i + 1); else finish(failure(err)); };
+      try { api().launch(ids[i], function () { finish(null); }, fail); }
+      catch (err) { fail(err); }
+    }
+    attempt(0);
   }
   function launch(brand, done) {
     if (!IDS[brand]) { done({message: 'This app has no launch target.'}); return; }

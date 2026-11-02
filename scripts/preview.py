@@ -16,6 +16,8 @@ class PreviewServer(ThreadingHTTPServer):
 class Preview(SimpleHTTPRequestHandler):
     def send_head(self):
         route = unquote(urlsplit(self.path).path)
+        if route.startswith('/tizen3/'):
+            route = '/home/' + route[len('/tizen3/'):]
         if route in ['/home/assets/font-catalog.js', '/home/assets/private-fonts.css'] or route.startswith('/home/assets/private-fonts/'):
             source = font_overlay(include_private=self.server.include_private_fonts).get(route[len('/home/'):])
             if source is None:
@@ -34,6 +36,12 @@ class Preview(SimpleHTTPRequestHandler):
         # Serve only the packaged UI and offline material-builder inputs.
         if route == '/' or route == '/home':
             return str(ROOT / 'app/index.html')
+        # The Tizen 3.0 build from scripts/build-tizen3.py (run it after app/ changes).
+        if route == '/tizen3':
+            return str(ROOT / 'dist/tizen3/index.html')
+        if route.startswith('/tizen3/'):
+            self.directory = str(ROOT / 'dist/tizen3')
+            return super().translate_path(route[7:])
         if route.startswith('/home/'):
             self.directory = str(ROOT / 'app')
             return super().translate_path(route[5:])
@@ -63,4 +71,5 @@ if __name__ == '__main__':
     server = PreviewServer(('127.0.0.1', args.port), Preview)
     server.include_private_fonts = not args.public_fonts
     print('CleanFrame preview: http://127.0.0.1:' + str(server.server_port) + '/home/', flush=True)
+    print('Tizen 3.0 build:    http://127.0.0.1:' + str(server.server_port) + '/tizen3/', flush=True)
     server.serve_forever()

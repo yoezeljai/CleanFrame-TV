@@ -38,6 +38,14 @@ html,body{width:100%;height:100%;overflow:hidden;background:#000}
 .caption{position:absolute;left:140px;top:72px;display:flex;flex-direction:column;gap:4px;max-width:1040px}
 .clock,.cap-title{font-size:48px;line-height:64px;font-weight:500;letter-spacing:-1.5px;white-space:nowrap;text-shadow:0 1px 3px rgba(0,0,0,.22)}
 .clock{font-variant-numeric:tabular-nums}
+.clock-ampm{margin-left:.28em;font-size:.5em;letter-spacing:0;font-weight:500;opacity:.8}
+.greeting{font-size:30px;line-height:40px;font-weight:500;letter-spacing:-.2px;white-space:nowrap;opacity:.82;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.wx{display:flex;align-items:center;white-space:nowrap;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.wx .wx-ico{flex:none;stroke-width:1.5}
+.wx-b{gap:14px;margin-top:8px}
+.wx-b .wx-temp{font-size:44px;line-height:52px;font-weight:500;letter-spacing:-1px}
+.wx-b .wx-meta{display:flex;flex-direction:column;font-size:24px;line-height:30px;font-weight:500;opacity:.78}
+
 .cap-line{max-width:100%;font-size:30px;line-height:40px;font-weight:500;letter-spacing:-.2px;color:rgba(255,255,255,.88);text-shadow:0 1px 2px rgba(0,0,0,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .warn{display:inline-flex;gap:12px;align-items:flex-start;color:var(--warn)}
 .warn .ico{width:30px;height:30px;margin-top:5px}
